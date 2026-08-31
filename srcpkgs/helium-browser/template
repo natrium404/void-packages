@@ -1,0 +1,61 @@
+# Template file for 'helium-browser'
+pkgname=helium-browser
+version=0.16.2.1
+revision=1
+archs="x86_64 aarch64"
+create_wrksrc=yes
+depends="alsa-lib dbus gtk+3 hicolor-icon-theme libcups libpulseaudio libva
+ libXScrnSaver nss liberation-fonts-ttf e2fsprogs-libs xdg-utils libdrm libXcomposite
+ libXdamage libXrandr libxshmfence libxslt"
+short_desc="Private, fast, and honest web browser based on Chromium"
+maintainer="natrium <heynatrium@proton.me>"
+license="GPL-3.0-only, BSD-3-Clause"
+homepage="https://github.com/imputnet/helium-linux"
+conflicts="helium-browser-bin helium-bin helium"
+nopie=yes
+nostrip=yes
+
+_url_base="https://github.com/imputnet/helium-linux/releases/download/${version}"
+
+case "$XBPS_TARGET_MACHINE" in
+x86_64)
+	distfiles="${_url_base}/helium-${version}-x86_64_linux.tar.xz"
+	checksum=800838069272870a6f4fc9eadf017c0819f7d89abf607117080b079d4bf7c017
+	_arch_dir="helium-${version}-x86_64_linux"
+	;;
+aarch64)
+	distfiles="${_url_base}/helium-${version}-arm64_linux.tar.xz"
+	checksum=ee5df7a0fc07be51aba24c0dab9ed3e7b7947199137af8d9d26a9f58f7d38df7
+	_arch_dir="helium-${version}-arm64_linux"
+	;;
+*)
+	broken="No distfiles available for this target"
+	;;
+esac
+
+do_install() {
+	# Extract archive contents directly to /opt/helium-browser
+	vmkdir opt/helium-browser
+	vcopy "${_arch_dir}/*" opt/helium-browser
+
+	# Align desktop file executable and icon name
+	sed -i 's/^Exec=.*/Exec=helium/' "${DESTDIR}/opt/helium-browser/helium.desktop"
+	sed -i 's/^Icon=.*/Icon=helium/' "${DESTDIR}/opt/helium-browser/helium.desktop"
+
+	# Binary named 'helium' linked to /usr/bin/helium
+	vmkdir usr/bin
+	ln -sf /opt/helium-browser/helium-wrapper "${DESTDIR}/usr/bin/helium"
+
+	# Install desktop file and icons
+	vinstall "${_arch_dir}/helium.desktop" 644 usr/share/applications helium.desktop
+	vinstall "${_arch_dir}/product_logo_256.png" 644 usr/share/pixmaps helium.png
+	vinstall "${_arch_dir}/product_logo_256.png" 644 usr/share/icons/hicolor/256x256/apps helium.png
+
+	# Remove loose logo images from opt
+	rm -f "${DESTDIR}/opt/helium-browser/product_logo_"*.png
+
+	# Install license if present inside release archive
+	if [ -f "${_arch_dir}/LICENSE" ]; then
+		vlicense "${_arch_dir}/LICENSE"
+	fi
+}
