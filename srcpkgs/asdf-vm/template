@@ -1,6 +1,6 @@
 # Template file for 'asdf-vm'
 pkgname=asdf-vm
-version=0.20.0
+version=0.20.2
 revision=1
 build_style=go
 go_import_path="github.com/asdf-vm/asdf"
@@ -11,7 +11,7 @@ maintainer="natrium <natrium@proton.me>"
 license="MIT"
 homepage="https://asdf-vm.com/"
 distfiles="https://github.com/asdf-vm/asdf/archive/refs/tags/v${version}.tar.gz"
-checksum=49f47b5b5255c6f29384f7d403d6c27bae9ce9944a4ff9334c67987d4b6c97b4
+checksum=29f5b702f532f345270e2f7bb8b01ea07dbc6892e34ec8c97a180002794684e3
 
 post_install() {
 	# Install completions
